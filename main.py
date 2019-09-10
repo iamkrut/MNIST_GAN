@@ -53,7 +53,7 @@ if device.type == 'cuda':
     zeros_target = zeros_target.to(device)
 
 # training
-no_epochs = 200
+no_epochs = 1000
 # Create logger instance
 for epoch in range(no_epochs):
     for itr, (real_img, _) in enumerate(data_loader):
