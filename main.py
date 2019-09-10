@@ -9,6 +9,8 @@ import torchvision.datasets as datasets
 from discriminator import Discriminator
 from generator import Generator
 
+import matplotlib.pyplot as plt
+
 # setting device on GPU if available, else CPU
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 print('Using device:', device)
@@ -103,7 +105,22 @@ for epoch in range(no_epochs):
         g_error.backward()  # Update weights with gradients
         g_optimizer.step()  # Return error
 
+        print("Epoch: {}, Itr: {}, Discriminator error: {}, Generator error: {}"
+              .format(epoch, itr, d_error, g_error))
 
         if itr % 100 == 99:
-            print("Epoch {}, itr {}, Discriminator error: {}, Generator error: {}"
-                  .format(epoch, itr, d_error, g_error))
+            rand_noise = Variable(torch.randn(10, 128))
+
+            if device.type == 'cuda':
+                rand_noise = rand_noise.to(device)
+
+            test_images = generator(rand_noise).view(10, 1, 28, 28)
+            test_images = test_images.data
+
+            # visualize results
+            fig = plt.figure(figsize=(20, 10))
+            for i in range(0, 10):
+                img = transforms.ToPILImage(mode='L')(test_images[i].squeeze(0).detach().cpu())
+                fig.add_subplot(2, 5, i+1)
+                plt.imshow(img)
+            plt.savefig('gen_images/gen_'+str(epoch)+'_'+str(itr)+'.png')
